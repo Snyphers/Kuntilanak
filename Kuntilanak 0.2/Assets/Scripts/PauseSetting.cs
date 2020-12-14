@@ -32,9 +32,15 @@ public class PauseSetting : MonoBehaviour
     [SerializeField] AudioMixer BackgroundMusic;
     [SerializeField] AudioMixer SoundEffect;
 
+    [SerializeField] Transform FirstInsta;
+    [SerializeField] GameObject Click;
+    [SerializeField] GameObject ClickLoc;
+
     private void Start()
     {
         PauseMenu.SetActive(false);
+        ItemUI.SetActive(true);
+        ClickLoc = Instantiate(Click,FirstInsta);
 
         float BGMValue = (GI.BGM / SFX.minValue * -100) + 100;
         BGMText.text = BGMValue.ToString("N0");
@@ -52,8 +58,10 @@ public class PauseSetting : MonoBehaviour
             Instantiate(Item, ItemUI.transform);
 
             IUI = Item.GetComponent<ItemUI>();
-            IUI.ItemIcon.sprite = GI.Items[i].Icon;
             IUI.Name.text = GI.Items[i].Name;
+            IUI.ItemIcon.sprite = GI.Items[i].Icon;
+            IUI.Count.text = GI.Items.Count.ToString();
+
             Items.Add(Item);
         }
     }
@@ -72,6 +80,8 @@ public class PauseSetting : MonoBehaviour
         IUI = Item.GetComponent<ItemUI>();
         IUI.ItemIcon.sprite = IH.CS.Icon;
         IUI.Name.text = IH.CS.Name;
+        IUI.Count.text = IH.CS.Count.ToString();
+
 
         Items.Add(Item);
     }
@@ -123,6 +133,25 @@ public class PauseSetting : MonoBehaviour
     {
         SettingUI.SetActive(true);
         ItemUI.SetActive(false);
+    }
+
+    public void HoverUI(Transform Loc)
+    {
+        Loc.localScale = new Vector3(1.2f, 1.2f, 1f);
+    }
+    
+    public void ClickIt(Transform Loc)
+    {
+        if (ClickLoc != null)
+        {
+            Destroy(ClickLoc);
+        }
+        ClickLoc = Instantiate(Click, Loc);
+    }
+
+    public void QuitHover(Transform Loc)
+    {
+        Loc.transform.localScale = new Vector3( 1 , 1f, 1f);
     }
 
     public void Restart()

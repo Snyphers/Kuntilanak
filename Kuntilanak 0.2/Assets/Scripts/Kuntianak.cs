@@ -1,14 +1,14 @@
 ﻿using UnityEngine.AI;
 using UnityEngine;
 
-public class NPCMove : MonoBehaviour
+public class Kuntianak : MonoBehaviour
 {
     [SerializeField] Transform Destination;
     [SerializeField] NavMeshAgent NavMeshAgent;
 
     private void Start()
     {
-        NavMeshAgent = this.GetComponent<NavMeshAgent>();
+        NavMeshAgent = GetComponent<NavMeshAgent>();
 
         if (NavMeshAgent == null)
         {

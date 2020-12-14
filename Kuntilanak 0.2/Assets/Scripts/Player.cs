@@ -6,6 +6,8 @@ using TMPro;
 
 public class Player : MonoBehaviour
 {
+    [SerializeField] MainDoor MD;
+    [SerializeField] DoorScrpt DS;
     PlayerInputAction PlayerControl;
     [SerializeField] PauseSetting PS;
     [SerializeField] GameInspector GI;
@@ -22,12 +24,12 @@ public class Player : MonoBehaviour
 
     [SerializeField] float Jump;
     [SerializeField] float Speed;
-    [SerializeField] int AHealth;
-    [SerializeField] int CHealth;
+    [SerializeField] float CHealth;
     [SerializeField] Vector3 Velocity;
     float Gravity = -8.81f;
 
     [SerializeField] Image touchCurrentState;
+    [SerializeField] Transform HealthBarA;
     [SerializeField] Slider HealthBar;
     [SerializeField] Sprite TouchOff;
     [SerializeField] Sprite TouchOn;
@@ -36,8 +38,15 @@ public class Player : MonoBehaviour
     [SerializeField] Image CurrentItemShow;
     [SerializeField] TextMeshProUGUI ItemCount;
     [SerializeField] TextMeshProUGUI UIItemsName;
+    [SerializeField] GameObject DeadthUI;
 
     float Scrolly;
+
+    public GameObject DoorUI;
+    public TextMeshProUGUI DoorText;
+
+    [SerializeField] GameObject Message;
+    [SerializeField] TextMeshProUGUI MessageText;
 
     [SerializeField] Light TouchLight;
 
@@ -46,6 +55,8 @@ public class Player : MonoBehaviour
     float YRotation = 0f;
     [SerializeField] Transform Camera;
 
+    bool Budak;
+    bool SpeedUp;
     bool IsGrounded;
     bool AttackedOnCD;
     public bool Pause;
@@ -61,7 +72,7 @@ public class Player : MonoBehaviour
 
         PlayerControl.Player.Pause.performed += IDK => OnPause();
         PlayerControl.Player.TurnOnFlash.performed += UGH => Flash();
-        PlayerControl.Player.CollectItem.performed += PickUp => CollectItem();
+        PlayerControl.Player.CollectItem.performed += PickUp => PressE();
 
         PlayerControl.Player.ScrollItem.performed += ChangeItem => Scrolly = ChangeItem.ReadValue<float>();
         PlayerControl.Player.ScrollItem.performed += ScrollY => ChangeItem();
@@ -91,6 +102,40 @@ public class Player : MonoBehaviour
 
         Velocity.y += Gravity * Time.deltaTime;
         Controller.Move(Velocity * Time.deltaTime);
+
+        if (SpeedUp)
+        {
+            Speed -= 1 * Time.deltaTime;
+            if (Speed <= 5)
+            {
+                SpeedUp = false;
+                Speed = 5;
+            }
+        }
+
+        if (Budak && TouchLightCon)
+        {
+            CHealth -= 0.5f;
+            HealthSystem();
+        }
+    }
+
+    private void FixedUpdate()
+    {
+        if (HealthBar.value > CHealth)
+        {
+            HealthBar.value -= 0.5f;
+            HealthBarA.localScale = new Vector3(1.2f ,1.2f ,1);
+        }
+        else if (HealthBar.value < CHealth)
+        {
+            HealthBar.value += 0.5f;
+            HealthBarA.localScale = new Vector3(1.2f ,1.2f , 1);
+        }
+        else
+        {
+            HealthBarA.localScale = new Vector3(1 ,1 , 1);
+        }
     }
 
     private void OnPause()
@@ -122,6 +167,45 @@ public class Player : MonoBehaviour
                 ItemName.text = "[E] Collect " + Item.Item.ToString();
                 ItemIcon.sprite = Item.Icon;
                 break;
+            case "Door":
+                DS = other.GetComponent<DoorScrpt>();
+                switch (DS.Condition)
+                {
+                    case true:
+                        if (DS.DoorType == DoorScrpt.Doortype.NormalDoor)
+                        {
+                            DoorText.text = "[E] Close Door";
+                        }
+                        break;
+                    case false:
+                        DoorText.text = "[E] Open Door";
+                        break;
+                }
+                DoorUI.SetActive(true);
+                break;
+            case "Main Door":
+                MD.GetComponent<MainDoor>();
+                if (!MD.Active)
+                {
+                    DoorText.text = "[E] Open Door";
+                }
+                break;
+            case "Budak":
+                Budak = true;
+                break;
+        }
+    }
+
+    private void OnTriggerStay(Collider other)
+    {
+        switch (other.tag) 
+        {
+            case "Kuntilanak":
+                if (!SpeedUp)
+                {
+                    GotHit();
+                }
+                break;
         }
     }
 
@@ -132,20 +216,26 @@ public class Player : MonoBehaviour
             case "Collectable":
                 ColectableUI.SetActive(false);
                 break;
+            case "Door":
+                DoorUI.SetActive(false);
+                break;
+            case "Main Door":
+                DoorUI.SetActive(false);
+                MD = null;
+                break;
+            case "Budak":
+                Budak = false;
+                break;
+
         }
     }
 
-    private void OnControllerColliderHit(ControllerColliderHit hit)
+    void GotHit()
     {
-        if (hit.gameObject.tag == "Kuntilanak")
-        {
-            CHealth -= 10;
-            HealthSystem();
-        }
-        else if (hit.gameObject.tag == "Budak")
-        {
-
-        }
+        SpeedUp = true;
+        CHealth -= 25;
+        Speed = 8;
+        HealthSystem();
     }
 
     void HealthSystem()
@@ -158,10 +248,12 @@ public class Player : MonoBehaviour
 
     void Die()
     {
-
+        Time.timeScale = 0f;
+        Cursor.visible = true;
+        DeadthUI.SetActive(true);
     }
 
-    public void CollectItem()
+    public void PressE()
     {
         if (ColectableUI.activeSelf)
         {
@@ -172,6 +264,85 @@ public class Player : MonoBehaviour
             ShowItems();
             //RefreshItem();
         }
+        else if (DoorUI.activeSelf)
+        {
+            if (MD != null)
+            {
+                foreach (var Item in GI.Items)
+                {
+                    if (Item.Item == CollectableScript.Items.MainKey)
+                    {
+                        MD.Active = true;
+                        MD.RightDoor.SetBool("Open", MD.Active);
+                        MD.LeftDoor.SetBool("Open", MD.Active);
+                        DoorUI.SetActive(false);
+                    }
+                    else
+                    {
+                        ErrorOpenDoor();
+                    }
+                }
+            }
+            else
+            {
+                switch (DS.DoorType)
+                {
+                    case DoorScrpt.Doortype.NormalDoor:
+                        switch (DS.Condition)
+                        {
+                            case true:
+                                DS.Condition = false;
+                                DS.Door.SetBool("Open", false);
+                                DoorText.text = "[E] Open Door";
+                                break;
+                            case false:
+                                DS.Condition = true;
+                                DS.Door.SetBool("Open", true);
+                                DoorText.text = "[E] Close Door";
+                                break;
+                        }
+                        break;
+                    case DoorScrpt.Doortype.OfficeDoor:
+                        if (GI.Items.Count - 0 >= 1)
+                        {
+                            foreach (var Item in GI.Items)
+                            {
+                                if (Item.Item == CollectableScript.Items.OfficeKey)
+                                {
+                                    DS.Condition = true;
+                                    DoorUI.SetActive(false);
+                                    DS.Door.SetBool("Open", true);
+                                    break;
+                                }
+                                else
+                                {
+                                    ErrorOpenDoor();
+                                    break;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            ErrorOpenDoor();
+                        }
+                        break;
+                }
+            }
+        }
+    }
+
+    void ErrorOpenDoor()
+    {
+        DoorUI.SetActive(false);
+        Message.SetActive(true);
+        MessageText.text = "I need to find the key";
+        StartCoroutine(HoldTheMessage());
+    }
+
+    IEnumerator HoldTheMessage()
+    {
+        yield return new WaitForSeconds(2);
+        Message.SetActive(false);
     }
 
     public void ShowItems()
@@ -218,7 +389,7 @@ public class Player : MonoBehaviour
             else
             {
                 touchCurrentState.sprite = TouchOn;
-                TouchLight.intensity = 250000f;
+                TouchLight.intensity = 300000f;
                 TouchLightCon = true;
             }
         }

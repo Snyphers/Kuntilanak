@@ -6,4 +6,5 @@ public class ItemUI : MonoBehaviour
 {
     public Image ItemIcon;
     public TextMeshProUGUI Name;
+    public TextMeshProUGUI Count;
 }

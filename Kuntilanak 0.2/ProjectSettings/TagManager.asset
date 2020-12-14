@@ -5,6 +5,10 @@ TagManager:
   serializedVersion: 2
   tags:
   - Collectable
+  - Door
+  - Main Door
+  - Kuntilanak
+  - Budak
   layers:
   - Default
   - TransparentFX

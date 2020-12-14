@@ -7,9 +7,10 @@ public class CollectableScript : ScriptableObject
 {
     public enum Items
     {
+        OfficeKey,
+        MainKey,
         MedKit,
-        Note,
-        Key,
+        Note
     }
 
     public int Count;
