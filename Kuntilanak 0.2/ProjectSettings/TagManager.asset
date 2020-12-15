@@ -9,6 +9,9 @@ TagManager:
   - Main Door
   - Kuntilanak
   - Budak
+  - Chair
+  - Tangga
+  - End Game
   layers:
   - Default
   - TransparentFX

@@ -6,8 +6,9 @@ using TMPro;
 
 public class Player : MonoBehaviour
 {
-    [SerializeField] MainDoor MD;
-    [SerializeField] DoorScrpt DS;
+    MainDoor MD;
+    DoorScrpt DS;
+    OpenShelf OS;
     PlayerInputAction PlayerControl;
     [SerializeField] PauseSetting PS;
     [SerializeField] GameInspector GI;
@@ -20,12 +21,13 @@ public class Player : MonoBehaviour
     [SerializeField] GameObject ColectableUI;
 
     [SerializeField] CharacterController Controller;
+    [SerializeField] Rigidbody RigidBody;
     [SerializeField] Collider PlayerCol;
 
     [SerializeField] float Jump;
     [SerializeField] float Speed;
     [SerializeField] float CHealth;
-    [SerializeField] Vector3 Velocity;
+    //[SerializeField] Vector3 Velocity;
     float Gravity = -8.81f;
 
     [SerializeField] Image touchCurrentState;
@@ -42,11 +44,14 @@ public class Player : MonoBehaviour
 
     float Scrolly;
 
-    public GameObject DoorUI;
-    public TextMeshProUGUI DoorText;
+    [SerializeField] GameObject DoorUI;
+    [SerializeField] TextMeshProUGUI DoorText;
 
     [SerializeField] GameObject Message;
     [SerializeField] TextMeshProUGUI MessageText;
+
+    [SerializeField] GameObject OpenShelf;
+    [SerializeField] TextMeshProUGUI ShelfText;
 
     [SerializeField] Light TouchLight;
 
@@ -82,17 +87,19 @@ public class Player : MonoBehaviour
 
     void Update()
     {
-        IsGrounded = Controller.isGrounded;
-        if (IsGrounded && Velocity.y < 0)
-        {
-            Velocity.y = 0f;
-        }
+        //IsGrounded = Controller.isGrounded;
+        //if (IsGrounded && Velocity.y < 0)
+        //{
+        //    Velocity.y = 0f;
+        //}
 
         float MouseX = GetMouseDelta().x * MouseSX * Time.deltaTime;
         float MouseY = GetMouseDelta().y * MouseSY * Time.deltaTime;
 
         Vector3 move = transform.right * GetPlayerMovement().x + transform.forward * GetPlayerMovement().y;
-        Controller.Move(move * Speed * Time.deltaTime);
+        Vector3 NewMovePos = new Vector3(move.x * Speed , RigidBody.velocity.y, move.z * Speed);
+        RigidBody.velocity = NewMovePos;
+        //Controller.Move(move * Speed * Time.deltaTime);
 
         YRotation -= MouseY;
         YRotation = Mathf.Clamp(YRotation, -90f, 90f);
@@ -100,8 +107,9 @@ public class Player : MonoBehaviour
         Camera.localRotation = Quaternion.Euler(YRotation, 0f, 0f);
         transform.Rotate(Vector3.up * MouseX);
 
-        Velocity.y += Gravity * Time.deltaTime;
-        Controller.Move(Velocity * Time.deltaTime);
+        //RigidBody.velocity.y = Velocity.y;
+        //RigidBody.velocity = move * Speed * Gravity;
+        //Controller.Move(Velocity * Time.deltaTime);
 
         if (SpeedUp)
         {
@@ -169,25 +177,43 @@ public class Player : MonoBehaviour
                 break;
             case "Door":
                 DS = other.GetComponent<DoorScrpt>();
-                switch (DS.Condition)
+                switch (DS.DoorType)
                 {
-                    case true:
-                        if (DS.DoorType == DoorScrpt.Doortype.NormalDoor)
+                    case DoorScrpt.Doortype.NormalDoor:
+                        switch (DS.Condition)
                         {
-                            DoorText.text = "[E] Close Door";
+                            case true:
+                                    DoorText.text = "[E] Close Door";
+                                break;
+                            case false:
+                                DoorText.text = "[E] Open Door";
+                                break;
                         }
                         break;
-                    case false:
-                        DoorText.text = "[E] Open Door";
+                    case DoorScrpt.Doortype.OfficeDoor:
+                        switch (DS.Condition)
+                        {
+                            case false:
+                                DoorText.text = "[E] Open Door";
+                                break;
+                        }
                         break;
                 }
                 DoorUI.SetActive(true);
                 break;
             case "Main Door":
-                MD.GetComponent<MainDoor>();
+                MD = other.GetComponent<MainDoor>();
                 if (!MD.Active)
                 {
                     DoorText.text = "[E] Open Door";
+                }
+                DoorUI.SetActive(true);
+                break;
+            case "Shelf":
+                OS = other.GetComponent<OpenShelf>();
+                if (!OS.IsOpen)
+                {
+                    
                 }
                 break;
             case "Budak":
@@ -233,8 +259,8 @@ public class Player : MonoBehaviour
     void GotHit()
     {
         SpeedUp = true;
-        CHealth -= 25;
-        Speed = 8;
+        CHealth -= 20;
+        Speed = 10;
         HealthSystem();
     }
 
@@ -268,21 +294,32 @@ public class Player : MonoBehaviour
         {
             if (MD != null)
             {
-                foreach (var Item in GI.Items)
+                if (GI.Items.Count >= 1)
                 {
-                    if (Item.Item == CollectableScript.Items.MainKey)
+                    foreach (var Item in GI.Items)
                     {
-                        MD.Active = true;
-                        MD.RightDoor.SetBool("Open", MD.Active);
-                        MD.LeftDoor.SetBool("Open", MD.Active);
-                        DoorUI.SetActive(false);
-                    }
-                    else
-                    {
-                        ErrorOpenDoor();
+                        if (Item.Item == CollectableScript.Items.MainKey)
+                        {
+                            MD.Active = true;
+                            MD.RightDoor.SetBool("Open", MD.Active);
+                            MD.LeftDoor.SetBool("Open", MD.Active);
+                            DoorUI.SetActive(false);
+                        }
+                        else
+                        {
+                            ErrorOpenDoor();
+                        }
                     }
                 }
+                else
+                {
+                    ErrorOpenDoor();
+                }
             }
+            //else if ()
+            //{
+
+            //}
             else
             {
                 switch (DS.DoorType)
@@ -303,7 +340,7 @@ public class Player : MonoBehaviour
                         }
                         break;
                     case DoorScrpt.Doortype.OfficeDoor:
-                        if (GI.Items.Count - 0 >= 1)
+                        if (GI.Items.Count >= 1)
                         {
                             foreach (var Item in GI.Items)
                             {
