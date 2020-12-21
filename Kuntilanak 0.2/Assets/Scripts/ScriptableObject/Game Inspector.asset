@@ -12,8 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dc71e9ea7aee6db4dbe367a4e0e14982, type: 3}
   m_Name: Game Inspector
   m_EditorClassIdentifier: 
-  Items: []
-  MouseX: 25
-  MouseY: 25
+  Items:
+  - {fileID: 11400000, guid: 25f91bcfd51a2fc4e8dbc25b38690ac9, type: 2}
+  - {fileID: 11400000, guid: c7a71daf03c9a12439704da27c72c51a, type: 2}
+  MouseX: 15.402905
+  MouseY: 13.874052
   SFX: -37.55931
-  BGM: -39.779495
+  BGM: -50.000725

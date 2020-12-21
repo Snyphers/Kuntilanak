@@ -10,6 +10,9 @@ public class Kuntianak : MonoBehaviour
     {
         NavMeshAgent = GetComponent<NavMeshAgent>();
 
+        GameObject Character = GameObject.FindWithTag("Player");
+        Destination = Character.transform;
+
         if (NavMeshAgent == null)
         {
             Debug.Log("HMMM?" + gameObject.name);

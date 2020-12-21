@@ -12,7 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 780b79e53751b9446b841c56da8e5e74, type: 3}
   m_Name: Office Key
   m_EditorClassIdentifier: 
-  Count: 2
+  Count: 0
   Item: 0
   Name: Office Key
-  Icon: {fileID: 21300000, guid: f17d3e071778dc84fbadf333febf8243, type: 3}
+  Icon: {fileID: 21300000, guid: 8ccb74f650defd94a97ca01fc9dff6bf, type: 3}
+  Discription: "A key for the second floor office\r."

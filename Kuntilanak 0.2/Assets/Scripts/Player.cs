@@ -12,6 +12,7 @@ public class Player : MonoBehaviour
     PlayerInputAction PlayerControl;
     [SerializeField] PauseSetting PS;
     [SerializeField] GameInspector GI;
+    [SerializeField] HantuCordination HC;
 
     [SerializeField] CollectableScript Item;
 
@@ -26,7 +27,7 @@ public class Player : MonoBehaviour
 
     [SerializeField] float Jump;
     [SerializeField] float Speed;
-    [SerializeField] float CHealth;
+    [SerializeField] public float CHealth;
     //[SerializeField] Vector3 Velocity;
     float Gravity = -8.81f;
 
@@ -55,6 +56,9 @@ public class Player : MonoBehaviour
 
     [SerializeField] Light TouchLight;
 
+    [SerializeField] GameObject GetHIt;
+    [SerializeField] Animator GetHitAni;
+
     public float MouseSX;
     public float MouseSY;
     float YRotation = 0f;
@@ -66,6 +70,8 @@ public class Player : MonoBehaviour
     bool AttackedOnCD;
     public bool Pause;
     bool TouchLightCon;
+
+    bool CannotOpen;
 
     private void Awake()
     {
@@ -82,7 +88,9 @@ public class Player : MonoBehaviour
         PlayerControl.Player.ScrollItem.performed += ChangeItem => Scrolly = ChangeItem.ReadValue<float>();
         PlayerControl.Player.ScrollItem.performed += ScrollY => ChangeItem();
 
+        Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+        Time.timeScale = 1f;
     }
 
     void Update()
@@ -150,10 +158,18 @@ public class Player : MonoBehaviour
     {
         if (Pause)
         {
+            GameObject ItemDetail = GameObject.FindWithTag("ItemDetail");
+            if (ItemDetail != null)
+            {
+                Destroy(ItemDetail);
+            }
+
             Pause = false;
             Time.timeScale = 1f;
-            Cursor.visible = false;
             PS.PauseMenu.SetActive(false);
+
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
         }
         else
         {
@@ -161,6 +177,9 @@ public class Player : MonoBehaviour
             Time.timeScale = 0f;
             Cursor.visible = true;
             PS.PauseMenu.SetActive(true);
+
+            Cursor.lockState = CursorLockMode.Confined;
+            Cursor.visible = true;
         }
     }
 
@@ -183,48 +202,67 @@ public class Player : MonoBehaviour
                         switch (DS.Condition)
                         {
                             case true:
-                                    DoorText.text = "[E] Close Door";
+                                 DoorText.text = "[E] Close Door";
                                 break;
                             case false:
                                 DoorText.text = "[E] Open Door";
                                 break;
                         }
+                        DoorUI.SetActive(true);
                         break;
                     case DoorScrpt.Doortype.OfficeDoor:
                         switch (DS.Condition)
                         {
                             case false:
                                 DoorText.text = "[E] Open Door";
+                                DoorUI.SetActive(true);
                                 break;
                         }
                         break;
                 }
-                DoorUI.SetActive(true);
                 break;
             case "Main Door":
                 MD = other.GetComponent<MainDoor>();
                 if (!MD.Active)
                 {
                     DoorText.text = "[E] Open Door";
+                    DoorUI.SetActive(true);
                 }
-                DoorUI.SetActive(true);
                 break;
             case "Shelf":
                 OS = other.GetComponent<OpenShelf>();
                 if (!OS.IsOpen)
                 {
-                    
+                    ShelfText.text = "[E] Open";
+                    OpenShelf.SetActive(true);
                 }
                 break;
             case "Budak":
                 Budak = true;
+                GetHIt.SetActive(true);
+                break;
+            case "Tangga":
+                HC.OnStairs = true;
+                HC.DestroyHantu();
+                break;
+            case "1":
+
+                break;
+            case "2":
+
+                break;
+            case "3":
+
+                break;
+            case "End Game":
+                PS.CreditScene();
                 break;
         }
     }
 
     private void OnTriggerStay(Collider other)
     {
-        switch (other.tag) 
+        switch (other.tag)
         {
             case "Kuntilanak":
                 if (!SpeedUp)
@@ -249,10 +287,35 @@ public class Player : MonoBehaviour
                 DoorUI.SetActive(false);
                 MD = null;
                 break;
+            case "Shelf":
+                OpenShelf.SetActive(false);
+                break;
             case "Budak":
                 Budak = false;
+                GetHitAni.SetBool("Doit", true);
+                StartCoroutine(MinusHealthAnimation());
                 break;
-
+            case "Tangga":
+                HC.OnStairs = false;
+                break;
+            case "1":
+                if (HC.OnStairs == false && HC.OfficeDoor == false)
+                {
+                    HC.InstaBasement();
+                }
+                break;
+            case "2":
+                if (HC.OnStairs == false && HC.OfficeDoor == false)
+                {
+                    HC.InstaFloor1();
+                }
+                break;
+            case "3":
+                if (HC.OnStairs == false && HC.OfficeDoor == false)
+                {
+                    HC.InstaFloor2();
+                }
+                break;
         }
     }
 
@@ -262,6 +325,24 @@ public class Player : MonoBehaviour
         CHealth -= 20;
         Speed = 10;
         HealthSystem();
+        if (CHealth > 0)
+        {
+            GetHIt.SetActive(true);
+            GetHitAni.SetBool("Doit", true);
+            StartCoroutine(MinusHealthAnimation());
+        }
+    }
+
+    IEnumerator MinusHealthAnimation()
+    {
+        yield return new WaitForSeconds(1f);
+        GetHitAni.SetBool("Doit", false);
+        GetHIt.SetActive(false);
+    }
+
+    public void Heal()
+    {
+      
     }
 
     void HealthSystem()
@@ -284,11 +365,10 @@ public class Player : MonoBehaviour
         if (ColectableUI.activeSelf)
         {
             ColectableUI.SetActive(false);
-            IH.DestroyThisItem();
             GI.AddItemList(Item);
-            PS.AddItem(IH);
-            ShowItems();
-            //RefreshItem();
+            PS.AddItem(Item);
+
+            IH.DestroyThisItem();
         }
         else if (DoorUI.activeSelf)
         {
@@ -301,25 +381,24 @@ public class Player : MonoBehaviour
                         if (Item.Item == CollectableScript.Items.MainKey)
                         {
                             MD.Active = true;
+                            StartCoroutine(HC.RespawnHantu());
                             MD.RightDoor.SetBool("Open", MD.Active);
                             MD.LeftDoor.SetBool("Open", MD.Active);
                             DoorUI.SetActive(false);
+                            HC.DesrtroyThekid();
+                            break;
                         }
                         else
                         {
-                            ErrorOpenDoor();
+                            MD.Active = false;
                         }
                     }
                 }
-                else
+                if (!MD.Active)
                 {
                     ErrorOpenDoor();
                 }
             }
-            //else if ()
-            //{
-
-            //}
             else
             {
                 switch (DS.DoorType)
@@ -347,15 +426,21 @@ public class Player : MonoBehaviour
                                 if (Item.Item == CollectableScript.Items.OfficeKey)
                                 {
                                     DS.Condition = true;
+                                    HC.OfficeDoor = true;
                                     DoorUI.SetActive(false);
                                     DS.Door.SetBool("Open", true);
+                                    HC.DestroyHantu();
                                     break;
                                 }
                                 else
                                 {
-                                    ErrorOpenDoor();
-                                    break;
+                                    CannotOpen = true;
                                 }
+                            }
+                            if (CannotOpen)
+                            {
+                                ErrorOpenDoor();
+                                CannotOpen = false;
                             }
                         }
                         else
@@ -365,6 +450,12 @@ public class Player : MonoBehaviour
                         break;
                 }
             }
+        }
+        else if (OS != null && !OS.IsOpen)
+        {
+            OS.Shelf.SetBool("Open", true);
+            OpenShelf.SetActive(false);
+            OS.IsOpen = true;
         }
     }
 
@@ -380,25 +471,6 @@ public class Player : MonoBehaviour
     {
         yield return new WaitForSeconds(2);
         Message.SetActive(false);
-    }
-
-    public void ShowItems()
-    {
-        if (GI.Items.Count == 1)
-        {
-            ShowItem.SetActive(true);
-            UIItemsName.text = Item.Name;
-            CurrentItemShow.sprite = Item.Icon;
-            ItemCount.text = Item.Count.ToString();
-        }
-    }
-
-    public void RefreshItem()
-    {
-        if (GI.Items.Count > 0)
-        {
-
-        }
     }
 
     void ChangeItem()

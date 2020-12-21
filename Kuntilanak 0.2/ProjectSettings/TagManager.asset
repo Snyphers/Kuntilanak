@@ -12,6 +12,12 @@ TagManager:
   - Chair
   - Tangga
   - End Game
+  - Shelf
+  - Canvas
+  - ItemDetail
+  - 1
+  - 2
+  - 3
   layers:
   - Default
   - TransparentFX

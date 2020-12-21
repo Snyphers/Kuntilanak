@@ -13,11 +13,16 @@ public class PauseSetting : MonoBehaviour
     public GameObject PauseMenu;
 
     [SerializeField] ItemUI IUI;
-    public List<GameObject> Items;
     [SerializeField] GameObject Item;
 
     [SerializeField] GameObject ItemUI;
     [SerializeField] GameObject SettingUI;
+    [SerializeField] GameObject RestartUI;
+    [SerializeField] GameObject MainMenu;
+    [SerializeField] GameObject Exit;
+
+    [SerializeField] GameObject CurrentActive;
+    [SerializeField] GameObject PreviousActive;
 
     [SerializeField] Slider BGM;
     [SerializeField] Slider SFX;
@@ -35,11 +40,15 @@ public class PauseSetting : MonoBehaviour
     [SerializeField] Transform FirstInsta;
     [SerializeField] GameObject Click;
     [SerializeField] GameObject ClickLoc;
+    [SerializeField] GameObject YesLoc;
+
+    //public TextMeshProUGUI HealthMessage;
 
     private void Start()
     {
         PauseMenu.SetActive(false);
         ItemUI.SetActive(true);
+        CurrentActive = ItemUI;
         ClickLoc = Instantiate(Click,FirstInsta);
 
         float BGMValue = (GI.BGM / SFX.minValue * -100) + 100;
@@ -53,42 +62,47 @@ public class PauseSetting : MonoBehaviour
         MouseX.value = GI.MouseX;
         MouseY.value = GI.MouseY;
 
-        for (int i = 0; i < GI.Items.Count; i++)
-        {
-            Instantiate(Item, ItemUI.transform);
+        //for (int i = 0; i < GI.Items.Count; i++)
+        //{
+        //    Instantiate(Item, ItemUI.transform);
 
-            IUI = Item.GetComponent<ItemUI>();
-            IUI.Name.text = GI.Items[i].Name;
-            IUI.ItemIcon.sprite = GI.Items[i].Icon;
-            IUI.Count.text = GI.Items.Count.ToString();
+        //    IUI = Item.GetComponent<ItemUI>();
+        //    //IUI.IH = GI.Items[i];
+        //    IUI.Name.text = GI.Items[i].Name;
+        //    IUI.ItemIcon.sprite = GI.Items[i].Icon;
+        //    IUI.Count.text = GI.Items.Count.ToString();
 
-            Items.Add(Item);
-        }
+        //    Items.Add(Item);
+        //}
     }
 
     public void Resume()
     {
+        GameObject ItemDetail = GameObject.FindWithTag("ItemDetail");
+        if (ItemDetail != null)
+        {
+            Destroy(ItemDetail);
+        }
+
         PauseMenu.SetActive(false);
         Player.Pause = false;
         Time.timeScale = 1f;
+
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
     }
 
-    public void AddItem(ItemHolder IH)
+    public void AddItem(CollectableScript CS)
     {
         Instantiate(Item, ItemUI.transform);
 
         IUI = Item.GetComponent<ItemUI>();
-        IUI.ItemIcon.sprite = IH.CS.Icon;
-        IUI.Name.text = IH.CS.Name;
-        IUI.Count.text = IH.CS.Count.ToString();
-
-
-        Items.Add(Item);
+        IUI.CS = CS;
     }
 
-    public void DestroyItem()
+    public void DestroyItem(CollectableScript Collectable)
     {
-        //Destroy
+        GI.Items.Remove(Collectable);
     }
 
     public void SBackgroundMusic(float Num)
@@ -149,9 +163,26 @@ public class PauseSetting : MonoBehaviour
         ClickLoc = Instantiate(Click, Loc);
     }
 
+    public void CloseOther(GameObject Sketch) 
+    {
+        CurrentActive.SetActive(false);
+        CurrentActive = Sketch;
+        CurrentActive.SetActive(true);
+    }
+
     public void QuitHover(Transform Loc)
     {
         Loc.transform.localScale = new Vector3( 1 , 1f, 1f);
+    }
+
+    public void YesHover(Transform Loc)
+    {
+        YesLoc = Instantiate(Click, Loc);
+    }
+
+    public void YesExit()
+    {
+        Destroy(YesLoc);
     }
 
     public void Restart()
@@ -174,5 +205,10 @@ public class PauseSetting : MonoBehaviour
     public void ExitGame()
     {
         Application.Quit();
+    }
+
+    public void CreditScene()
+    {
+        SceneManager.LoadScene("Credit Scene");
     }
 }

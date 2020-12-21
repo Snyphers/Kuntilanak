@@ -12,7 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 780b79e53751b9446b841c56da8e5e74, type: 3}
   m_Name: Med Kit
   m_EditorClassIdentifier: 
-  Count: 1
-  Item: 0
+  Count: 0
+  Item: 2
   Name: Med Kit
-  Icon: {fileID: 21300000, guid: 757f15c71b2ed554c9c76713c175f1e4, type: 3}
+  Icon: {fileID: 21300000, guid: 99c6c05e59602ed4bb6f2d42d44dfb5e, type: 3}
+  Discription: Health

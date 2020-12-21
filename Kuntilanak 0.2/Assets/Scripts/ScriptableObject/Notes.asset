@@ -12,7 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 780b79e53751b9446b841c56da8e5e74, type: 3}
   m_Name: Notes
   m_EditorClassIdentifier: 
-  Count: 1
+  Count: 0
   Item: 3
-  Name: Note
-  Icon: {fileID: 21300000, guid: c6d4abdda4dde3b4db5c170e01f6db14, type: 3}
+  Name: Diary
+  Icon: {fileID: 21300000, guid: e932736d780c94e49983540f90d2a56c, type: 3}
+  Discription: "a journal recounting the events of what happened\r"

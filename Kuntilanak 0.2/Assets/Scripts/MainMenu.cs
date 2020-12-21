@@ -24,6 +24,9 @@ public class MainMenu : MonoBehaviour
     [SerializeField] AudioMixer SoundEffect;
     [SerializeField] AudioMixer BackgroundMusic;
 
+    [SerializeField] GameObject Click;
+    [SerializeField] GameObject ClickLoc;
+
     public void Start()
     {
         BGM.value = GI.BGM;
@@ -35,6 +38,28 @@ public class MainMenu : MonoBehaviour
         SFXText.text = GI.SFX.ToString("N0");
         MouseXText.text = GI.MouseX.ToString("N0");
         MouseYText.text = GI.MouseY.ToString("N0");
+    }
+
+    public void HoverUI(Transform Loc)
+    {
+        Loc.localScale = new Vector3(1.2f, 1.2f, 1f);
+        ClickLoc = Instantiate(Click, Loc);
+    }
+
+    public void QuitHover(Transform Loc)
+    {
+        Loc.transform.localScale = new Vector3(1, 1f, 1f);
+        Destroy(ClickLoc);
+    }
+
+    public void NormalHover(Transform Loc)
+    {
+        Loc.localScale = new Vector3(1.2f, 1.2f, 1f);
+    }
+
+    public void NormalQuit(Transform Loc)
+    {
+        Loc.transform.localScale = new Vector3(1, 1f, 1f);
     }
 
     public void TurnCredit()
@@ -93,7 +118,7 @@ public class MainMenu : MonoBehaviour
 
     public void StartGame()
     {
-        SceneManager.LoadScene("Level Scene");
+        SceneManager.LoadScene("Intro Scene");
     }
 
     public void ExitGame()

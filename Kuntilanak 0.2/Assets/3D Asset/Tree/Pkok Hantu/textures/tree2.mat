@@ -21,11 +21,11 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: tree2
-  m_Shader: {fileID: -6465566751694194690, guid: 8bebb30dd09da7f4783a02df69313011, type: 3}
-  m_ShaderKeywords: _NORMALMAP _NORMALMAP_TANGENT_SPACE
+  m_Shader: {fileID: -6465566751694194690, guid: f968d29b0e3903f4ca4ed3214e760bdf, type: 3}
+  m_ShaderKeywords: _DOUBLESIDED_ON
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
-  m_DoubleSidedGI: 0
+  m_DoubleSidedGI: 1
   m_CustomRenderQueue: -1
   stringTagMap:
     MotionVector: User
@@ -38,12 +38,24 @@ Material:
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
+    - Texture2D_191DB975:
+        m_Texture: {fileID: 2800000, guid: a24de62fec90efb49a5aa1f04d93f930, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - Texture2D_34C207DA:
         m_Texture: {fileID: 2800000, guid: f6df8193a15aea74f861d78be0d32979, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - Texture2D_51678910:
+        m_Texture: {fileID: 2800000, guid: aabd54f7e008a344b868c6d8c25f6950, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - Texture2D_ADD7C412:
         m_Texture: {fileID: 2800000, guid: 8164a2dc6e62ec8438c8c4c19651174f, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - Texture2D_B3F87766:
+        m_Texture: {fileID: 2800000, guid: 44f2e75000c6b6d4885e35a53500a527, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _AnisotropyMap:
@@ -131,6 +143,8 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Floats:
+    - Vector1_5B222A4F: 0.3
+    - Vector1_657B0646: 0.06
     - _AORemapMax: 1
     - _AORemapMin: 0
     - _ATDistance: 1
@@ -146,8 +160,8 @@ Material:
     - _Anisotropy: 0
     - _BlendMode: 0
     - _CoatMask: 0
-    - _CullMode: 2
-    - _CullModeForward: 2
+    - _CullMode: 0
+    - _CullModeForward: 0
     - _Cutoff: 0.5
     - _DepthOffsetEnable: 0
     - _DetailAlbedoScale: 1
@@ -172,7 +186,7 @@ Material:
     - _DistortionSrcBlend: 1
     - _DistortionVectorBias: -1
     - _DistortionVectorScale: 2
-    - _DoubleSidedEnable: 0
+    - _DoubleSidedEnable: 1
     - _DoubleSidedNormalMode: 1
     - _DstBlend: 0
     - _EmissiveColorMode: 1
@@ -253,6 +267,7 @@ Material:
     - _ZTestTransparent: 4
     - _ZWrite: 1
     m_Colors:
+    - Vector2_3B3A3EAE: {r: 6, g: 0, b: 0, a: 0}
     - _BaseColor: {r: 0.8, g: 0.8, b: 0.8, a: 1}
     - _BaseColorMap_MipInfo: {r: 0, g: 0, b: 0, a: 0}
     - _Color: {r: 0.8, g: 0.8, b: 0.8, a: 1}
